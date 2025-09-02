@@ -1,0 +1,11 @@
+*# Python
+venv/
+*.pyc
+__pycache__/
+
+# Pulumi
+Pulumi.*.yaml
+*.pem
+*.log
+.pyc
+venv/

@@ -1,0 +1,12 @@
+{
+  "eip_id": "eipalloc-053e509da25496c45",
+  "igw_id": "igw-06e18c36c40b7fd34",
+  "nat_gateway_id": "nat-0c3cf265686d07dff",
+  "private_rt_id": "rtb-0dee779660679faa0",
+  "private_subnet_id": "subnet-09350404ae9fd357d",
+  "public_rt_id": "rtb-0e92d600cc0794085",
+  "public_subnet_id": "subnet-08e8923a89a012561",
+  "vpc_id": "vpc-06134364d67a0c4bc"
+}
+
+
