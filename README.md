@@ -1,20 +1,55 @@
- # AWS Python S3 Bucket Pulumi Template
+ # AWS Hands-On Exam – Pulumi Project
 
- A minimal Pulumi template for provisioning a single AWS S3 bucket using Python.
+This repository contains the full Pulumi project for the AWS Hands-On Exam.  
+It implements a secure VPC, public and private EC2 instances, MySQL installation, and end-to-end connectivity validation using **Pulumi (Python)**.
 
- ## Overview
+---
 
- This template provisions an S3 bucket (`pulumi_aws.s3.BucketV2`) in your AWS account and exports its ID as an output. It’s an ideal starting point when:
-  - You want to learn Pulumi with AWS in Python.
-  - You need a barebones S3 bucket deployment to build upon.
-  - You prefer a minimal template without extra dependencies.
+# Project Overview
 
- ## Prerequisites
+This project covers the following tasks:
 
- - An AWS account with permissions to create S3 buckets.
- - AWS credentials configured in your environment (for example via AWS CLI or environment variables).
- - Python 3.6 or later installed.
- - Pulumi CLI already installed and logged in.
+1. **Secure VPC**  
+   - Create a VPC with CIDR `10.0.0.0/16`  
+   - Public subnet: `10.0.1.0/24`  
+   - Private subnet: `10.0.2.0/24`  
+   - Internet Gateway (IGW) attached  
+   - NAT Gateway in public subnet  
+   - Public & Private Route Tables with proper routing  
+
+2. **Bastion Host in Public Subnet**  
+   - EC2 instance with public IPv4  
+   - Security Group allowing inbound SSH from your public IP  
+   - System hardening: non-root user `ops`, SSH key injected, root login disabled  
+
+3. **Private EC2 Instance**  
+   - EC2 in private subnet without public IP  
+   - Security Group allows SSH only from Bastion SG  
+
+4. **Install & Manage MySQL**  
+   - MySQL installed via User Data  
+   - Listen on `127.0.0.1` and private IP  
+   - Database `appdb` and user `appuser` with password  
+   - systemd ensures MySQL auto-start and survives reboot  
+
+5. **End-to-End Connectivity Validation**  
+   - SSH from bastion → private instance  
+   - Private instance → Internet via NAT (`curl https://aws.amazon.com`)  
+   - Bastion → MySQL on private instance (`SELECT 1;`)  
+
+6. **Clean Infrastructure Teardown**  
+   - `pulumi destroy` cleans all resources  
+   - No orphaned resources remain  
+
+---
+
+##  Prerequisites
+
+- AWS account with permissions to create VPC, EC2, S3, and related resources  
+- AWS CLI configured with credentials  
+- Python 3.6+  
+- Pulumi CLI installed and logged in  
+
 
  ## Getting Started
 
@@ -22,7 +57,7 @@
     ```bash
     pulumi new aws-python
     ```
- 2. Follow the prompts to set your project name and AWS region (default: `us-east-1`).
+ 2. Follow the prompts to set your project name and AWS region (default: `ap-southeast-1`).
  3. Change into your project directory:
     ```bash
     cd <project-name>
@@ -40,6 +75,22 @@
     pulumi destroy
     ```
 
+This includes:
+
+VPC ID
+
+Subnet IDs
+
+Bastion public IP
+
+Private EC2 ID and private IP
+
+Evidence / Screenshots: 
+
+ Attached Module 6-7 Project Submissions.docx
+
+
+
  ## Project Layout
 
  After running `pulumi new`, your directory will look like:
@@ -48,6 +99,7 @@
  ├── Pulumi.yaml         # Project metadata and template configuration
  ├── requirements.txt    # Python dependencies
  └── Pulumi.<stack>.yaml # Stack-specific configuration (e.g., Pulumi.dev.yaml)
+ └── Module 6-7 Project Submissions.docx
  ```
 
  ## Configuration
@@ -61,7 +113,8 @@
  View or update configuration with:
  ```bash
  pulumi config get aws:region
- pulumi config set aws:region us-west-2
+ pulumi config set aws:region ap-southeast-1
+
  ```
 
  ## Outputs
