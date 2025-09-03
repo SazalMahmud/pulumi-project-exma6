@@ -160,6 +160,37 @@ app_sg = aws.ec2.SecurityGroup("app-sg",
     tags={"Name": "app-sg"}
 )
 
+
+# Private EC2 + MySQL Setup
+
+mysql_user_data = f"""#!/bin/bash
+# MySQL root password
+MYSQL_ROOT_PASSWORD="RootPass@123"
+APP_DB="appdb"
+APP_USER="appuser"
+APP_PASSWORD="AppUserPass@123"
+
+# System update & install MySQL
+apt-get update -y
+DEBIAN_FRONTEND=noninteractive apt-get install -y mysql-server
+
+# Configure MySQL to listen on 127.0.0.1 + private IP
+PRIVATE_IP=$(hostname -I | awk '{{print $1}}')
+sed -i "s/^bind-address.*/bind-address = 127.0.0.1/" /etc/mysql/mysql.conf.d/mysqld.cnf
+echo "bind-address = $PRIVATE_IP" >> /etc/mysql/mysql.conf.d/mysqld.cnf
+
+# Enable & restart MySQL
+systemctl enable mysql
+systemctl restart mysql
+
+# Set root password and create DB + user
+mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${{MYSQL_ROOT_PASSWORD}}'; FLUSH PRIVILEGES;"
+mysql -uroot -p"${{MYSQL_ROOT_PASSWORD}}" -e "CREATE DATABASE ${APP_DB};"
+mysql -uroot -p"${{MYSQL_ROOT_PASSWORD}}" -e "CREATE USER '${APP_USER}'@'%' IDENTIFIED BY '${APP_PASSWORD}';"
+mysql -uroot -p"${{MYSQL_ROOT_PASSWORD}}" -e "GRANT ALL PRIVILEGES ON ${APP_DB}.* TO '${APP_USER}'@'%'; FLUSH PRIVILEGES;"
+"""
+
+
 private_ec2 = aws.ec2.Instance("private-ec2",
     instance_type="t2.micro",
     ami="ami-004a7732acfcc1e2d",
